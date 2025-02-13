@@ -5,7 +5,7 @@
                 "test": {
                         "TCPBanner": {
                             "server": {
-                                "address": "tonkatsu.simulakrum.com",
+                                "address": "example.com",
                                 "port": 22,
                                 "ssl": false
                             },
@@ -21,7 +21,7 @@
                 "test": {
                     "HTTPSGet": {
                         "server": {
-                            "address": "tonkatsu.simulakrum.com",
+                            "address": "example.com",
                             "port": 443,
                             "ssl": true
                         },
