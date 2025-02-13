@@ -1,0 +1,8 @@
+{
+	"from_email": "example@example.com",
+	"from_name": "example@example.com",
+	"to_email": "example@example.com",
+	"to_name": "example@example.com",
+    "subject": "Monitoring failure",
+    "mailchannel_url": "https://api.mailchannels.net/tx/v1/send"
+}
