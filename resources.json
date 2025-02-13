@@ -1,35 +1,20 @@
 [
-            {
-                "name": "SSH",
-                "enabled": true,
-                "test": {
-                        "TCPBanner": {
-                            "server": {
-                                "address": "example.com",
-                                "port": 22,
-                                "ssl": false
-                            },
-                            "string_test": {
-                                "good_return": "^SSH-2.0-OpenSSH_.*"
-                            }
-                        }
-                }
-            },
-            {
+	{
+            
                 "name": "Website",
                 "enabled": true,
                 "test": {
                     "HTTPSGet": {
                         "server": {
                             "address": "example.com",
-                            "port": 443,
+                            "port": 442,
                             "ssl": true
                         },
                         "test_path": {
                             "resource_path": "/"
                         },
                         "string_test": {
-                            "good_return": "TheFrontPage\\.html"
+                            "good_return": "example"
                         },
                         "code_test": {
                             "good_code": 200
