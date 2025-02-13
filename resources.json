@@ -7,7 +7,7 @@
                     "HTTPSGet": {
                         "server": {
                             "address": "example.com",
-                            "port": 442,
+                            "port": 80,
                             "ssl": true
                         },
                         "test_path": {
