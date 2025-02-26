@@ -4,3 +4,11 @@ compatibility_date = "2025-02-13"
 
 [build]
 command = "cargo install -q worker-build && worker-build --release"
+
+[triggers]
+crons = ["0/5 * * * *"]
+
+# wrangler.toml (wrangler v3.88.0^)
+[observability.logs]
+enabled = true
+
