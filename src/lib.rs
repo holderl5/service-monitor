@@ -2,7 +2,6 @@
 //use url::*;
 use worker::*;
 use serde::{Serialize, Deserialize};
-use serde_json::{Value};
 use futures::future::join_all;
 use tokio::io::BufReader;
 use tokio::io::AsyncReadExt;
@@ -12,6 +11,7 @@ use anyhow::Result;
 use anyhow::anyhow;
 use wasm_bindgen::JsValue;
 use std::fmt::Write as _;
+use serde_json::json;
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -53,7 +53,9 @@ struct Config {
 	from_email: String,
 	from_name: String,
 	subject: String,
-	mailchannel_url: String
+	mail_send_url: String,
+    mail_send_api_key: String,
+    send_email: bool    
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -69,9 +71,9 @@ struct TestResult<'a> {
 	test_result: Result<String>
 }
 
-struct TestError {
-	message: String
-}
+//struct TestError {
+//	message: String
+//}
 
 
 // Connects to a TCP resource or HTTPS resource and checks if the good_return regex is found in the output
@@ -205,77 +207,76 @@ fn some_failure_present(wrappedtr: &Result<TestResult>) -> bool {
 	
 }
 
-async fn get_email_post<'a>(config: &Config, failures: &Vec<&Result<TestResult<'a>>>) -> Result<String> {
-	console_log!("start get_email_post");
-
-	// Create template
-	let post_template = r#"
-			{
-				"personalizations": [
-					{
-						"to": [
-							{
-								"email": "test@example.com",
-								"name": "Test Recipient"
-							}],
-					},
-				],
-				"from": {
-					"email": "sender@example.com",
-					"name": "Workers - MailChannels integration",
-				},
-				"subject": "Look! No servers",
-				"content": [
-					{
-						"type": "text/plain",
-						"value": "And no email service accounts and all for free too!",
-					},
-				],
-			}"#;
-	console_log!("get_email_post before from_str {post_template}");
-
-	let mut v: Value = serde_json::from_str(post_template)?;
-	console_log!("get_email_post after from_str");
-
-	// Fill template
-	console_log!("fill template");
-
-	v["personalizations"][0]["email"] = serde_json::to_value(&config.to_email)?;
-	v["personalizations"][0]["name"] = serde_json::to_value(&config.to_name)?;
-	v["from"]["email"] = serde_json::to_value(&config.from_email)?;
-	v["from"]["name"] = serde_json::to_value(&config.from_name)?;
-	v["subject"] = serde_json::to_value(&config.subject)?;
-
-	// Build notification from failures, unwrapping and checking is a little complicated using a for loop instead
-	let mut notification_text = String::new();
-	for _element in failures {
-		//write!(&mut notification_text, "FAIL\n");
-		console_log!("fail item");
-
-	}	
-	console_log!("fill template complete");
-
-	v["content"]["value"] = serde_json::to_value(notification_text)?;
-	return Ok(v.to_string());
+async fn create_notification_text<'a>(_config: &Config, failures: &Vec<&Result<TestResult<'a>>>) -> Result<String> {
+// Build notification from failures, unwrapping and checking is a little complicated using a for loop instead
+    let mut notification_text = String::new();
+    for element in failures {
+        // TODO: Do we want to do this clone really?
+        let name = element.as_ref().unwrap().resource.name.clone();
+        write!(&mut notification_text, "FAIL\n {name}")?;
+        console_log!("fail item");
+    }
+    return Ok(notification_text);
 }
 
-async fn dispatch_notification<'a>(config: &Config, failures: &Vec<&Result<TestResult<'a>>>) -> Result<bool> {
-	console_log!("start dispatch_notification");
-	
-	let post_body = get_email_post(config, failures).await?;
-	console_debug!("Email POST Body {post_body}");
-	let mut hdr = Headers::new();
-	hdr.append("content-type", "application/json")?;
+async fn transmit_email(config: &Config, not_text: String) -> Result<bool> {
+	console_log!("start transmit_email");
 
+    // make service specific request
+	let post_json = json!(
+        {
+            "from": {
+              "email": &config.from_email,
+              "name": &config.from_name
+            },
+            "to": [
+              {
+                "email": &config.to_email,
+                "name": &config.to_name,
+              }
+            ],
+            "subject": &config.subject,
+              "text": &not_text,
+            "html": null,
+            "personalization": [
+              {
+                "email": &config.to_email,
+                "data": {
+                  "company": null
+                }
+              }
+            ]
+        });	
+
+    // transmit request
+	let mut hdr = Headers::new();
+    let auth = format!("Bearer {0}", config.mail_send_api_key);
+	hdr.append("content-type", "application/json")?;
+    hdr.append("Authorization", &auth)?;
 	let ri = RequestInit {
-		body: Some(JsValue::from_str(&post_body)),
+		body: Some(JsValue::from_str(&post_json.to_string())),
 		headers: hdr,
 		cf: CfProperties::new(),
 		method: Method::Post,
 		redirect: RequestRedirect::default()
 	};
-    let request = Request::new_with_init(&config.mailchannel_url, &ri)?;										 
-    let mut _response = Fetch::Request(request).send().await?.cloned()?;
+    
+    let request = Request::new_with_init(&config.mail_send_url, &ri)?;
+    let response = Fetch::Request(request).send().await?.cloned()?;
+    console_debug!("{:?}", response);
+	return Ok(true);
+}
+
+async fn dispatch_notification<'a>(config: &Config, failures: &Vec<&Result<TestResult<'a>>>) -> Result<bool> {
+	console_log!("start dispatch_notification");
+	
+    let not_text = create_notification_text(config, failures).await?;
+    if config.send_email {        
+        let _ = transmit_email(config, not_text).await?;
+    } else {
+        console_debug!("Not sending email due to send_email configuration");
+    }
+	
 	return Ok(true);
 }
 
@@ -308,9 +309,22 @@ async fn fetch(
     _ctx: Context,
 ) -> Result<Response, worker::Error> {
     console_error_panic_hook::set_once();
+    console_debug!("Start fetch");
+
 
 	// Load configuration
 	let (config, resources) = load_configs(_env).await.unwrap();	
 	let _ = monitor_process(&config, resources).await;        
     Response::ok("Completed")
+}
+
+#[event(scheduled)]
+pub async fn scheduled(_event: ScheduledEvent, _env: Env, _ctx: ScheduleContext) -> () {
+	console_error_panic_hook::set_once();
+    console_debug!("Start scheduled");
+
+	// Load configuration
+	let (config, resources) = load_configs(_env).await.unwrap();	
+	let _ = monitor_process(&config, resources).await;        
+    ()
 }
