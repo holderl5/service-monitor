@@ -1,5 +1,5 @@
 [package]
-name = "cf-hello-world"
+name = "service-monitor"
 version = "0.1.0"
 edition = "2021"
 authors = [ "JHolder <holder@l5sg.com>" ]
