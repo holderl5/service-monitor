@@ -1,5 +1,5 @@
 # Overview
-Cloudflare worker to monitor and alert for downtime on a list of services.  This worker is authored in rust and uses https://github.com/cloudflare/workers-rs for the runtime.  Configuration is via a JSON object that goes in your worker's environment.  The repository was created with the workers-rs hello-world template.
+Cloudflare worker to monitor and alert for downtime on a list of services.  This worker is authored in rust and uses https://github.com/cloudflare/workers-rs (hello world template) for the runtime.  Configuration is via a JSON object that goes in your worker's environment.
 
 # Background
 [Background info](https://www.simulakrum.com/monitoring-services-with-cloudflare-and-rust.html)
