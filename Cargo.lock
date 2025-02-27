@@ -148,29 +148,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cf-hello-world"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "console_error_panic_hook",
- "futures",
- "getrandom",
- "instant",
- "regex",
- "rustls",
- "rustls-pki-types",
- "rustls-rustcrypto",
- "serde",
- "serde_json",
- "tokio",
- "tokio-stream",
- "url",
- "webpki-roots",
- "worker",
- "worker-macros",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1349,6 +1326,29 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "service-monitor"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "console_error_panic_hook",
+ "futures",
+ "getrandom",
+ "instant",
+ "regex",
+ "rustls",
+ "rustls-pki-types",
+ "rustls-rustcrypto",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-stream",
+ "url",
+ "webpki-roots",
+ "worker",
+ "worker-macros",
 ]
 
 [[package]]
