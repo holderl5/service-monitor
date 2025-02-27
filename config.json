@@ -4,5 +4,7 @@
 	"to_email": "example@example.com",
 	"to_name": "example@example.com",
     "subject": "Monitoring failure",
-    "mailchannel_url": "https://api.mailchannels.net/tx/v1/send"
+    "mail_send_url": "https://api.mailersend.com/v1/email",
+    "mail_send_api_key": "mlsn.some_long_thing",
+    "send_email": true,
 }
