@@ -1,8 +1,8 @@
 # Overview
 Cloudflare worker to monitor and alert for downtime on a list of services.  This worker is authored in rust and uses https://github.com/cloudflare/workers-rs for the runtime.  Configuration is via a JSON object that goes in your worker's environment.  The repository was created with the workers-rs hello-world template.
 
-# Why
-Read the WHY here: link pending
+# Background
+[Background info](https://www.simulakrum.com/monitoring-services-with-cloudflare-and-rust.html)
 
 # Status
 This is the initial version, there are a few TODOs left to make it complete.
@@ -30,3 +30,5 @@ I ran into issues running, this seemed to fix the problem, not sure how importan
 ```
 npx wrangler dev --ip 0.0.0.0
 ```
+# Deploying to Cloudflare
+Though you can add/edit environment variables directly in the cloudflare console, it is probably best that you add them to your wrangler.toml file.  I will add further information on this.
