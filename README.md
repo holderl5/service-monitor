@@ -1,4 +1,4 @@
-# IS IT DOWN MONITOR
+# IS IT DOWN MONITOR 📉
 Free infrastucture monitoring that can alert you when your services go down
 
 ## Overview
