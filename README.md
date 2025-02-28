@@ -1,4 +1,4 @@
-# IS IT DOWN
+# IS IT DOWN MONITOR
 Free infrastucture monitoring that can alert you when your services go down
 
 ## Overview
@@ -35,3 +35,9 @@ npx wrangler dev --ip 0.0.0.0
 ```
 ## Deploying to Cloudflare
 Though you can add/edit environment variables directly in the cloudflare console, it is probably best that you add them to your wrangler.toml file.  I will add further information on this.
+
+## TODOS
+* Move env vars to JSON
+* Move secret key to secrets
+* Write more information about configuring and deployment
+* Make video showing creation and deployment
